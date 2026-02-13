@@ -38,4 +38,51 @@
  */
 export function iplPointsTable(matches) {
   // Your code here
+  if(!Array.isArray(matches) || matches.length == 0) return [];
+  let teams = [];
+  let teamsObj = {};
+  // 1. we create a accumulator because it becomes easier to process the information rather than search in an array of objects
+
+//  * - Build an object accumulator: { "CSK": { team, played, won, lost, tied, noResult, points }, ... }
+
+  for(let match of matches){
+    if(!teamsObj[match.team1]) teamsObj[match.team1] ={team:match.team1,played:0,won:0,lost:0,tied:0,noResult:0,points:0};
+    if (!teamsObj[match.team2]) teamsObj[match.team2] = { team: match.team2, played: 0, won: 0, lost: 0, tied: 0, noResult: 0, points: 0 };
+    if(match.result == "tie"){
+      teamsObj[match.team1].played += 1;
+      teamsObj[match.team1].tied += 1;
+      teamsObj[match.team1].points += 1;
+      teamsObj[match.team2].tied += 1;
+      teamsObj[match.team2].played += 1;
+      teamsObj[match.team2].points += 1;
+    }else if(match.result == "no_result"){
+      teamsObj[match.team1].played += 1;
+      teamsObj[match.team1].points += 1;
+      teamsObj[match.team1].noResult += 1;
+      teamsObj[match.team2].noResult += 1;
+      teamsObj[match.team2].points += 1;
+      teamsObj[match.team2].played += 1;
+    }else{
+      let winner = match.winner === match.team1 ? match.team1 : match.team2;
+      let looser = match.winner === match.team1 ? match.team2 : match.team1;
+
+      teamsObj[winner].played += 1;
+      teamsObj[winner].won += 1;
+      teamsObj[winner].points += 2;
+
+      teamsObj[looser].played += 1;
+      teamsObj[looser].lost += 1;
+      teamsObj[looser].points += 0;
+    }
+  }
+
+  teams = Object.values(teamsObj).sort((a,b) =>{
+    if(a.points == b.points) {
+      return a.team.localeCompare(b.team);
+    }
+      return b.points - a.points
+  } );
+
+  return teams;
 }
+
